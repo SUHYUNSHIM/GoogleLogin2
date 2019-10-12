@@ -18,7 +18,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
-
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 
 class MainActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
@@ -36,7 +37,7 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedList
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        mAuth = FirebaseAuth.getInstance()//싱글톤 패턴으로 작동이된다
+        mAuth = FirebaseAuth.getInstance()  //싱글톤 패턴으로 작동이된다
         // Configure Google Sign In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -46,6 +47,11 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedList
             .enableAutoManage(this, this)
             .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
             .build()
+
+        //fireabase realtime database test 문구
+        val database : FirebaseDatabase = FirebaseDatabase.getInstance()
+        val myRef : DatabaseReference = database.getReference("message")
+        myRef.setValue("안녕 반가워!")
 
 
 
@@ -91,13 +97,26 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedList
                     //   FirebaseUser user = mAuth.getCurrentUser();
                     // updateUI(user);
                     Toast.makeText(this@MainActivity, "아이디 생성완료", Toast.LENGTH_SHORT).show()
+                    val loginIntent = Intent(this, LoadingActivity::class.java) //새로운 activity에 넘길 intent
+
+                    val user = FirebaseAuth.getInstance().currentUser       //구글 계정으로 로그인된 사용자의 정보
+                    user?.let {
+                        // Name, email address, and profile photo Url
+                        val name = user.displayName
+                        loginIntent.putExtra( "UserName",name) // 넘길 intent에 extra넣겠다.
+                        startActivityForResult(loginIntent, 1)
+
+                        }
+
                 } else {
                     // If sign in fails, display a message to the user.
                     //Log.w(TAG, "signInWithCredential:failure", task.getException());
                     // Toast.makeText(GoogleSignInActivity.this, "Authentication failed.",
                     //          Toast.LENGTH_SHORT).show();
                     //  updateUI(null);
-                }
+                    // If sign in fails, display a message to the user.
+
+                    }
 
                 // ...
             })
